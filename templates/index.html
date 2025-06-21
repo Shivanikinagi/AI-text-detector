@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>AI Text Detector</title>
+    <style>
+        body { font-family: Arial, sans-serif; max-width: 800px; margin: 0 auto; padding: 20px; }
+        .upload-box { border: 2px dashed #ccc; padding: 20px; text-align: center; margin: 20px 0; }
+        #results { margin-top: 30px; }
+        .ai-detected { background-color: #ffeeee; }
+    </style>
+</head>
+<body>
+    <h1>AI Text Detector</h1>
+    <p>Upload a text file to analyze for AI-generated content</p>
+
+    <div class="upload-box">
+        <form id="uploadForm">
+            <input type="file" id="fileInput" accept=".txt">
+            <button type="submit">Analyze</button>
+        </form>
+    </div>
+
+    <div id="results"></div>
+
+    <script>
+        document.getElementById('uploadForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const fileInput = document.getElementById('fileInput');
+            const resultsDiv = document.getElementById('results');
+
+            if (!fileInput.files.length) {
+                resultsDiv.innerHTML = '<p style="color: red">Please select a file</p>';
+                return;
+            }
+
+            const formData = new FormData();
+            formData.append('file', fileInput.files[0]);
+
+            resultsDiv.innerHTML = '<p>Analyzing...</p>';
+
+            try {
+                const response = await fetch('/analyze', {
+                    method: 'POST',
+                    body: formData
+                });
+
+                const data = await response.json();
+
+                if (data.error) {
+                    resultsDiv.innerHTML = `<p style="color: red">Error: ${data.error}</p>`;
+                    return;
+                }
+
+                let html = `
+                    <h2>Results</h2>
+                    <p>AI Detected: ${data.stats.ai_count} of ${data.stats.total} (${data.stats.ai_percentage})</p>
+                    <table border="1" cellpadding="8" cellspacing="0" width="100%">
+                        <tr>
+                            <th>ID</th>
+                            <th>Text</th>
+                            <th>AI Probability</th>
+                        </tr>
+                `;
+
+                data.results.forEach(item => {
+                    const rowClass = item.is_ai ? 'ai-detected' : '';
+                    html += `
+                        <tr class="${rowClass}">
+                            <td>${item.id}</td>
+                            <td>${item.text}</td>
+                            <td>${(item.confidence * 100).toFixed(2)}%</td>
+                        </tr>
+                    `;
+                });
+
+                html += '</table>';
+                resultsDiv.innerHTML = html;
+
+            } catch (error) {
+                resultsDiv.innerHTML = `<p style="color: red">Error: ${error.message}</p>`;
+            }
+        });
+    </script>
+</body>
+</html>

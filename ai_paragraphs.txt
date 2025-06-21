@@ -1,0 +1,11 @@
+placeholder.
+
+The core task of rewriting (spinning) the chapter text is an NLP task, specifically text paraphrasing. The t5-small model, a transformer, is designed for sequence-to-sequence tasks like paraphrasing, translation, or summarization.
+
+The project involves text processing at multiple stages: scraping raw text, AI-driven rewriting, and human-edited refinements.
+
+The task mentions an “Agentic API” for seamless content flow between AI agents. While the provided code uses a single AI model (local t5-small), the design implies a multi-agent system:
+
+AI Writer Agent: Rewrites text using the t5-small model.
+
+The “agentic” aspect refers to the orchestrated interaction of these components, though true multi-agent autonomy (e.g., agents communicating via APIs) is
